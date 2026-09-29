@@ -457,12 +457,17 @@ public class GuideManager : IGuideManager
 
         item.Name = channelInfo.Name;
 
+        var preserveChannelIcons = _config.GetLiveTvConfiguration().TunerHosts
+            .FirstOrDefault(i => string.Equals(i.Id, channelInfo.TunerHostId, StringComparison.OrdinalIgnoreCase))
+            ?.PreserveChannelIcons ?? false;
+
         var currentPrimary = item.GetImageInfo(ImageType.Primary, 0);
         var imageUrlIsNull = string.IsNullOrWhiteSpace(channelInfo.ImageUrl);
 
         // Update channel image if image URL has changed
-        if (currentPrimary is null
-            || (!imageUrlIsNull && !string.Equals(currentPrimary.Path, channelInfo.ImageUrl, StringComparison.Ordinal)))
+        if (!preserveChannelIcons
+            && (currentPrimary is null
+                || (!imageUrlIsNull && !string.Equals(currentPrimary.Path, channelInfo.ImageUrl, StringComparison.Ordinal))))
         {
             if (!string.IsNullOrWhiteSpace(channelInfo.ImagePath))
             {
